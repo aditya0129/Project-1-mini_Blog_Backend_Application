@@ -1,6 +1,6 @@
 const blogModel = require("../model/blogModel");
 const authorModel = require("../model/authorModel");
-const moment = require("moment");
+const { default: mongoose } = require("mongoose");
 
 // / Create a blog document from request body. Get authorId in request body only.
 // - Make sure the authorId is a valid authorId by checking the author exist in the authors collection.
@@ -113,28 +113,44 @@ const deleteData = async function (req, res) {
 // - Delete blog documents by category, authorid, tag name, subcategory name, unpublished
 // - If the blog document doesn't exist then return an HTTP status of 404 with a body like [this](#error-response-structure)
 
-const deleteData1 = async function (req, res) {
-  try {
-    let data6 = req.query;
-    let time = moment().format();
-
-    const blog1Delete = await blogModel.findOneAndUpdate(
-      { data6 },
-      { $set: { isDeleted: true, deletedAt: time } },
-      { new: true }
-    );
-    if (blog1Delete) {
-      res.status(201).send({ msg: blog1Delete });
-    } else {
-      res.status(404).send({ msg: "error-response-structure" });
-    }
-  } catch (error) {
-    res.status(500).send({ error: error.message });
+const deletedByquery= async function(req,res){
+  try{
+    let filterdata={isDeleted:false,authorId:req.authorId}
+  let {category,subcategory,tags,authorId}=req.query
+  if(authorId){
+    if(!mongoose.isValidObjectId(req.query.authorId))
+    return res.status(400).send({status:false,msg:"please enter valid object id"})
+    else
+    filterdata.authorId=authorId
   }
-};
+  if(category){
+    filterdata.category=category
+  }
+  if(subcategory){
+    filterdata.subcategory=subcategory
+  }
+  if(tags){
+    filterdata.tags=tags
+  }
+  let data = await blogModel.findOne(filterdata)
+  if(!data)
+  return res.status(200).send({status:false,msg:"no record found or invalid autherid"})
+
+  if(data.authorId._id.toString()!=req.authorId)
+  return res.status(200).send({status:false,msg:"Authrisaion falied"})
+
+  let updateData=await blogModel.updateOne(filterdata,{isDeleted:true},{new:true})
+  return res.status(200).send({status:true,msg:"data is deleted"})
+}
+
+catch(error){
+  res.status(500).send({status:false,error:error.message})
+
+}
+}
 
 module.exports.blogCreate = blogCreate;
 module.exports.getData = getData;
 module.exports.updateData = updateData;
 module.exports.deleteData = deleteData;
-module.exports.deleteData1 = deleteData1;
+module.exports.deletedByquery=deletedByquery

@@ -10,7 +10,7 @@ router.post("/blogs",auth.authetication,blogController.blogCreate)
 router.get("/blogs",auth.authetication,blogController.getData)
 router.put("/blogs/:blogId",auth.authetication,auth.authorisation,blogController.updateData)
 router.delete("/blogs/:blogId",auth.authetication,auth.authorisation,blogController.deleteData)
-router.delete("/blogs1",auth.authetication,blogController.deleteData1)
+router.delete("/blogs",auth.authetication,blogController.deletedByquery)
 
 
 

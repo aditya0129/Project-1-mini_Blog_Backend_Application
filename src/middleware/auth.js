@@ -40,7 +40,7 @@ const authorisation = async function (req, res, next) {
     let blogId = req.params.blogId;
     let authorId = token.authorId;
 
-    let Id = await blogModel.findOne({ _id: blogId });
+    let Id = await blogModel.findById({ _id: blogId });
     if (!Id) {
        res.status(404).send({ msg: "blogId does not match" });
     }

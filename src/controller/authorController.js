@@ -32,17 +32,18 @@ const authorLogin = async function (req, res) {
     });
     if (!login) {
       res.status(404).send({ msg: "user id or password is not correct" });
-    } else {
+    }  
       let token = jwt.sign(
         {
           authorId: login._id.toString(),
           email: login.email,
+          password:login.password
         },
         "kickstarter"
       );
       res.setHeader("x-api-key", token);
-      res.status(201).send({ status: true, msg: token });
-    }
+      res.status(200).send({ status: true, Data: {token:token},msg:"succesfully loggedin"});
+    
   } catch (error) {
     res.status(500).send({ status: false, msg: error.message });
   }
